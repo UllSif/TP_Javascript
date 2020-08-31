@@ -4,8 +4,6 @@ const mongoose = require('mongoose');
 
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
-// const tweetsRoute = require('./client/static/js/tweets')
-
 
 // DATABASE CONNECTION
 mongoose.connect('mongodb://localhost:27017/mytweets', {useNewUrlParser: true, useUnifiedTopology: true});
@@ -31,9 +29,16 @@ var stream = T.stream('statuses/filter', {track: ['#javascript', '#iot']})
 
 // Puis on emit pour pouvoir les afficher dans tweets.js
 stream.on('tweet', function (tweet) {
+    // console.log(tweet)
     io.emit('tweet', {'tweet': tweet});
 })
 
+// TODO: Récupérer mes tweets
+// var myTweet = T.get('search/user', {user_id: '1283450833330471000'})
+// console.log(myTweet)
+// myTweet.on('myTweet', function (tweet) {
+//     io.emit('myTweet', {'tweet': tweet})
+// })
 
 // CREATE APP CONF
 app.use('/lib', express.static(__dirname + '/client/static/'));
