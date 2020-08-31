@@ -17,6 +17,23 @@ db.once('open', function () {
     console.log('DB connected on port 27017');
 });
 
+// Connexion à twitter
+const Twit = require('twit');
+var T = new Twit({
+    consumer_key: 'mPX22oQC6ACmDjUYAsqC3MOjL',
+    consumer_secret: 'XaVNyDqQU4ZBfINA3ykTAlEQKBh2IIQb1T5gHliodbngRhH5rn',
+    access_token: '1283450833330470914-vSKQOIA6eKZS4CNIBj2CdCvGLh6GPB',
+    access_token_secret: '9s6TdkYHzV9zjDrlZ4MbjEn3f8JyzwxIWTxGbM1G1A1Vv'
+})
+
+// On récupère les hashtag #javascript et #iot
+var stream = T.stream('statuses/filter', {track: ['#javascript', '#iot']})
+
+// Puis on emit pour pouvoir les afficher dans tweets.js
+stream.on('tweet', function (tweet) {
+    io.emit('tweet', {'tweet': tweet});
+})
+
 
 // CREATE APP CONF
 app.use('/lib', express.static(__dirname + '/client/static/'));
@@ -28,24 +45,6 @@ app.get('/', function (req, res) {
 
 app.get('/tweets', function (req, res) {
     res.sendFile(__dirname + '/client/static/tweets.html')
-})
-
-
-const Twit = require('twit');
-var T = new Twit({
-    consumer_key: 'mPX22oQC6ACmDjUYAsqC3MOjL',
-    consumer_secret: 'XaVNyDqQU4ZBfINA3ykTAlEQKBh2IIQb1T5gHliodbngRhH5rn',
-    access_token: '1283450833330470914-vSKQOIA6eKZS4CNIBj2CdCvGLh6GPB',
-    access_token_secret: '9s6TdkYHzV9zjDrlZ4MbjEn3f8JyzwxIWTxGbM1G1A1Vv'
-})
-
-
-// On récupère les #javascript et #iot
-var stream = T.stream('statuses/filter', {track: ['#javascript', '#iot']})
-
-// Puis on les envois pour pouvoir les afficher dans tweets.js
-stream.on('tweet', function (tweet) {
-    io.emit('tweet', {'tweet': tweet});
 })
 
 
