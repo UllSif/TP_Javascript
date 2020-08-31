@@ -1,6 +1,4 @@
 const socket = io();
-var tweetArray = [];
-var index = 0;
 
 var mainContent = document.getElementById('main-content');
 
@@ -12,27 +10,9 @@ socket.on('tweet', function (tweet) {
     try {
     } catch (err) {
     }
-    tweetArray.unshift(tweetbody);
+
+    var p = document.createElement('p');
+    p.innerHTML = tweetbody.text
+
+    mainContent.appendChild(p);
 })
-
-
-socket.on('allTweet', function (tweet) {
-    console.log(tweet);
-    tweetArray = tweet;
-    loopArray();
-})
-
-
-function loopArray() {
-    if (tweetArray.length > index) {
-        var currentTweet = tweetArray[index];
-
-        var p = document.createElement('p');
-        p.innerHTML = currentTweet.text
-
-        mainContent.appendChild(p);
-        index ++
-    }
-
-
-}
