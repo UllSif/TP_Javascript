@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 
+const MyTweet = require('./server/models/mytweets');
+
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
@@ -24,7 +26,7 @@ var T = new Twit({
     access_token_secret: '9s6TdkYHzV9zjDrlZ4MbjEn3f8JyzwxIWTxGbM1G1A1Vv'
 })
 
-// On récupère les hashtag #javascript et #iot
+// Récupération des tweets avec les hashtag #javascript et #iot
 var stream = T.stream('statuses/filter', {track: ['#javascript', '#iot']})
 
 // Puis on emit pour pouvoir les afficher dans tweets.js
@@ -33,12 +35,28 @@ stream.on('tweet', function (tweet) {
     io.emit('tweet', {'tweet': tweet});
 })
 
-// TODO: Récupérer mes tweets
-// var myTweet = T.get('search/user', {user_id: '1283450833330471000'})
-// console.log(myTweet)
-// myTweet.on('myTweet', function (tweet) {
-//     io.emit('myTweet', {'tweet': tweet})
-// })
+
+// Récupération du dernier tweet de mon compte
+const getMyTweet = new Promise((resolve, reject) => {
+    T.get('https://api.twitter.com/1.1/users/show.json', {user_id: "1283450833330471000", screen_name: "sif_ull"})
+        .then(response => {
+            resolve(response.data)
+        })
+        .catch(error => {
+            console.log(error);
+        });
+});
+
+// Ajout du tweet dans la db
+getMyTweet.then((value) => {
+    console.log(value);
+
+    var toSave = new MyTweet(value)
+    toSave.save().then(function (newTweet) {
+        console.log('Object saved')
+    })
+})
+
 
 // CREATE APP CONF
 app.use('/lib', express.static(__dirname + '/client/static/'));
