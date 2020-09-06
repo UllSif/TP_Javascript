@@ -35,25 +35,26 @@ stream.on('tweet', function (tweet) {
     io.emit('tweet', {'tweet': tweet});
 })
 
-
-// Récupération du dernier tweet de mon compte
+// Récupération de mes tweets
 const getMyTweet = new Promise((resolve, reject) => {
-    T.get('https://api.twitter.com/1.1/users/show.json', {user_id: "1283450833330471000", screen_name: "sif_ull"})
+    T.get('statuses/user_timeline', {screen_name: 'sif_ull', count: 50})
         .then(response => {
             resolve(response.data)
+            console.log(response.data)
         })
-        .catch(error => {
-            console.log(error);
-        });
-});
+        .catch(err => {
+            console.log(err);
+        })
+})
 
-// Ajout du tweet dans la db
+// Ajout de chaque tweet dans la db
 getMyTweet.then((value) => {
-    console.log(value);
-
-    var toSave = new MyTweet(value)
-    toSave.save().then(function (newTweet) {
-        console.log('Object saved')
+    // console.log(value);
+    value.forEach(function (tweet) {
+        var toSave = new MyTweet(tweet)
+        toSave.save().then(function () {
+            console.log('Object saved with id : ' + toSave.id)
+        })
     })
 })
 
@@ -70,6 +71,14 @@ app.get('/tweets', function (req, res) {
     res.sendFile(__dirname + '/client/static/tweets.html')
 })
 
+app.get('/api/mytweets', function (req, res) {
+    MyTweet.find({}).exec(function (err, myTweetsList) {
+        if (err) {
+            console.log(err)
+        }
+        res.json(myTweetsList);
+    })
+})
 
 // handle socket events
 io.on('connection', (socket) => {
