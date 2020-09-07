@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 
 const MyTweet = require('./server/models/mytweets');
 
+const Key = require('./APIKeys');
+
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
@@ -20,10 +22,10 @@ db.once('open', function () {
 // Connexion à twitter
 const Twit = require('twit');
 var T = new Twit({
-    consumer_key: 'mPX22oQC6ACmDjUYAsqC3MOjL',
-    consumer_secret: 'XaVNyDqQU4ZBfINA3ykTAlEQKBh2IIQb1T5gHliodbngRhH5rn',
-    access_token: '1283450833330470914-vSKQOIA6eKZS4CNIBj2CdCvGLh6GPB',
-    access_token_secret: '9s6TdkYHzV9zjDrlZ4MbjEn3f8JyzwxIWTxGbM1G1A1Vv'
+    consumer_key: Key.consumer_key,
+    consumer_secret: Key.consumer_secret,
+    access_token: Key.access_token,
+    access_token_secret: Key.access_token_secret
 })
 
 // Récupération des tweets avec les hashtag #javascript et #iot
@@ -35,28 +37,18 @@ stream.on('tweet', function (tweet) {
     io.emit('tweet', {'tweet': tweet});
 })
 
-// Récupération de mes tweets
-const getMyTweet = new Promise((resolve, reject) => {
-    T.get('statuses/user_timeline', {screen_name: 'sif_ull', count: 50})
-        .then(response => {
-            resolve(response.data)
-            console.log(response.data)
-        })
-        .catch(err => {
-            console.log(err);
-        })
+var streamMyTweet = T.stream('statuses/filter', {follow: ['1283450833330470914']})
+
+streamMyTweet.on('tweet', function (tweet) {
+    console.log(tweet.text);
+    var toSave = new MyTweet(tweet)
+    toSave.save().then(function() {
+        console.log('Object saved with id : ' + toSave.id)
+    })
+    io.emit('mytweet', {'tweet' : tweet})
 })
 
-// Ajout de chaque tweet dans la db
-getMyTweet.then((value) => {
-    // console.log(value);
-    value.forEach(function (tweet) {
-        var toSave = new MyTweet(tweet)
-        toSave.save().then(function () {
-            console.log('Object saved with id : ' + toSave.id)
-        })
-    })
-})
+
 
 
 // CREATE APP CONF

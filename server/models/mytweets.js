@@ -4,6 +4,7 @@ var TweetSchema = mongoose.Schema({
     user: {
         name: String,
         location: String,
+        profile_image_url: String,
     },
         created_at: String,
         id: Number,
@@ -12,7 +13,6 @@ var TweetSchema = mongoose.Schema({
         geo: String,
         coordinates: String,
         place: String,
-    profile_image_url: String,
 })
 
 const MyTweet = mongoose.model('myTweet', TweetSchema);
