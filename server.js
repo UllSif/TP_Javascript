@@ -37,8 +37,10 @@ stream.on('tweet', function (tweet) {
     io.emit('tweet', {'tweet': tweet});
 })
 
+// Récupérer mes tweets par mon ID
 var streamMyTweet = T.stream('statuses/filter', {follow: ['1283450833330470914']})
 
+// Enregistrement et Emit des tweets
 streamMyTweet.on('tweet', function (tweet) {
     console.log(tweet.text);
     var toSave = new MyTweet(tweet)
@@ -47,8 +49,6 @@ streamMyTweet.on('tweet', function (tweet) {
     })
     io.emit('mytweet', {'tweet' : tweet})
 })
-
-
 
 
 // CREATE APP CONF

@@ -15,6 +15,6 @@ socket.on('tweet', function (tweet) {
 
     // Puis on affiche le tweet sur la page
     var p = document.createElement('p');
-    p.innerHTML = tweetbody.text
+    p.innerHTML = tweetbody.text;
     mainContent.appendChild(p);
 })
