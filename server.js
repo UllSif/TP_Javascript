@@ -63,14 +63,15 @@ app.get('/tweets', function (req, res) {
     res.sendFile(__dirname + '/client/static/tweets.html')
 })
 
-app.get('/api/mytweets', function (req, res) {
-    MyTweet.find({}).exec(function (err, myTweetsList) {
-        if (err) {
-            console.log(err)
-        }
-        res.json(myTweetsList);
-    })
-})
+// Get my tweets from the db, not used
+// app.get('/api/mytweets', function (req, res) {
+//     MyTweet.find({}).exec(function (err, myTweetsList) {
+//         if (err) {
+//             console.log(err)
+//         }
+//         res.json(myTweetsList);
+//     })
+// })
 
 // handle socket events
 io.on('connection', (socket) => {
